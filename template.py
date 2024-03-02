@@ -3,8 +3,9 @@ import numpy as np
 import pyautogui
 from pynput import mouse, keyboard
 import time
-from datetime import datetime, timedelta
 import pygetwindow as gw
+
+import os
 
 # Initialize the mouse controller for direct input
 from pynput.mouse import Controller, Button
@@ -21,11 +22,9 @@ except IndexError:
     print(f"No window titled '{window_title}' found.")
 
 # Toggle for enabling/disabling the functionality
-toggle = False
+toggle = True
 # Flag for right-click detection
 right_click_detected = False
-# List to store screen areas to watch
-watch_areas = []
 
 
 def on_press(key):
@@ -36,27 +35,45 @@ def on_press(key):
         if key.char == "f":
             toggle = not toggle
             print(f"Functionality toggled {'on' if toggle else 'off'}")
-            if toggle:
-                # Reset watch areas when functionality is toggled on
-                global watch_areas
-                watch_areas = []
+            # TODO: do something when toggles
+
     except AttributeError:
         pass  # Ignore special keys
 
 
 def on_click(x, y, button, pressed):
     """Handle mouse click events."""
+    print(f"[{button}] [{pressed}] while toggle: [{toggle}]")
+
     global right_click_detected
     if button == mouse.Button.right and pressed and toggle:
+
         # Set flag if right-click is detected while toggled on
+        capture_area([2580, 220, 180, 110])  # ultrawide - minimap
+        # capture_area([0, 0, 3440, 1440]) # fullscreen
         right_click_detected = True
 
 
 def capture_area(area):
-    """Capture and return an image of the specified screen area."""
+    """Capture and save an image of the specified screen area with a Unix timestamp."""
     x, y, w, h = area
     capture = pyautogui.screenshot(region=(x, y, w, h))
     capture_np = np.array(capture)
+
+    # Ensure the /images folder exists
+    images_folder = "images"
+    if not os.path.exists(images_folder):
+        os.makedirs(images_folder)
+
+    # Generate a filename with a Unix timestamp
+    timestamp = str(int(time.time()))
+    filename = f"{images_folder}/capture_{timestamp}.png"
+
+    # Save the screenshot to the /images folder
+    cv2.imwrite(filename, cv2.cvtColor(capture_np, cv2.COLOR_RGB2BGR))
+
+    print(f"Saved screenshot to {filename}")
+
     return cv2.cvtColor(capture_np, cv2.COLOR_BGR2RGB)
 
 
