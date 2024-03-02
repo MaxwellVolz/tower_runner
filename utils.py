@@ -5,25 +5,31 @@ import time
 import os
 
 
-def capture_area(area):
-    """Capture and save an image of the specified screen area with a Unix timestamp."""
-    x, y, w, h = area
-    capture = pyautogui.screenshot(region=(x, y, w, h))
-    capture_np = np.array(capture)
-
-    # Ensure the /images folder exists
-    images_folder = "images"
-    if not os.path.exists(images_folder):
-        os.makedirs(images_folder)
+def save_image(image_np, folder="images"):
+    """Save an image to a specified folder with a Unix timestamp as the filename."""
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
     # Generate a filename with a Unix timestamp
     timestamp = str(int(time.time()))
-    filename = f"{images_folder}/capture_{timestamp}.png"
+    filename = f"{folder}/capture_{timestamp}.png"
 
-    # Save the screenshot to the /images folder
-    cv2.imwrite(filename, cv2.cvtColor(capture_np, cv2.COLOR_RGB2BGR))
+    # Save the image to the specified folder
+    cv2.imwrite(filename, image_np)
 
     print(f"Saved screenshot to {filename}")
+    return filename
+
+
+def capture_area(area):
+    """Capture an image of the specified screen area and save it using save_image."""
+    x, y, w, h = area
+    capture = pyautogui.screenshot(region=(x, y, w, h))
+    capture_np = np.array(capture)
+    capture_np_bgr = cv2.cvtColor(capture_np, cv2.COLOR_RGB2BGR)
+
+    # Save the captured area using the new save_image function
+    save_image(capture_np_bgr)
 
     return cv2.cvtColor(capture_np, cv2.COLOR_BGR2RGB)
 

@@ -1,7 +1,10 @@
+from pynput.mouse import Button
+import cv2
+import numpy as np
+
 from keyboard import create_keyboard_listener
 from mouse import create_mouse_listener
-from utils import capture_area
-from pynput.mouse import Button
+from utils import capture_area, save_image
 
 toggle = True
 
@@ -17,13 +20,58 @@ def capture_minimap():
         capture_area([2580, 220, 180, 120])
 
 
+def check_for_tower(min_area_size=20):
+    # Example area to capture, replace with the actual area you want to monitor
+    captured_area = capture_area([2580, 220, 180, 120])
+
+    tolerance = 40
+    # rgb = [170, 70, 180]
+    rgb = [170, 70, 140]
+
+    # Define the color range for the tower
+    lower = np.array([x - tolerance for x in rgb])
+    upper = np.array([x + tolerance for x in rgb])
+
+    # Create a mask to find areas within the specified color range
+    mask = cv2.inRange(captured_area, lower, upper)
+    kernel = np.ones((5, 5), np.uint8)
+
+    # Process mask to improve contour detection
+    mask_processed = cv2.dilate(mask, kernel, iterations=1)
+    mask_processed = cv2.erode(mask_processed, kernel, iterations=1)
+
+    # Find contours in the processed mask
+    contours, _ = cv2.findContours(
+        mask_processed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    found_contours = False
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area > min_area_size:  # Only consider contours larger than min_area_size
+            x, y, w, h = cv2.boundingRect(cnt)
+            cv2.rectangle(captured_area, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            found_contours = True
+
+    if not found_contours:
+        print("No tower found or towers are smaller than the minimum area size.")
+        return False
+
+    # Save the processed image with rectangles around detected towers larger than min_area_size
+    save_image(cv2.cvtColor(captured_area, cv2.COLOR_RGB2BGR))
+
+    print("Processed image saved with detected areas larger than minimum area size.")
+    return True
+
+
 # Define key and button bindings
 key_bindings = [
     ("f", toggle_functionality, (), {}),
 ]
 
 button_bindings = [
-    (Button.right, capture_minimap, (), {}),
+    # (Button.right, capture_minimap, (), {}),
+    (Button.right, check_for_tower, (), {}),
 ]
 
 
