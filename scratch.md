@@ -1,49 +1,45 @@
+spiral teleport (iterations, run_duration)
 
-lets set up a def check_for_tower that will
-
-- use the return of capture_area (aka return cv2.cvtColor(capture_np, cv2.COLOR_BGR2RGB))
-- and search for a color close to RGB 170, 70, 180
-example for using contours:
-
-```py
-    lower = np.array([5, 170, 230])
-    upper = np.array([30, 200, 255])
-    mask = cv2.inRange(screen_np, lower, upper)
-    kernel = np.ones((5, 5), np.uint8)
-
-    mask_processed = cv2.dilate(mask, kernel, iterations=1)
-    mask_processed = cv2.erode(mask_processed, kernel, iterations=1)
-
-    contours, _ = cv2.findContours(
-        mask_processed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-    )
+- use screen size at 80% for mouse positions
+- 
+start with mouse at bottom of screen
+  
+for iterations
+    press W
+    hold left click
+    for run_duration
+    move mouse left by angle_of_turn(example 60 degrees)
+    release mouse
 
 
-    if not contours:
-        print("No areas to monitor.")
-        return False  # Signal to exit monitoring
 
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        watch_x = x - 18  # Position the watch area
-        watch_y = y + (h // 2) - 3
-        watch_areas.append((watch_x, watch_y, 7, 7))  # Store area
+lets define a function called smart_teleport(iterations)
 
-        cv2.rectangle(screen_np, (x, y), (x + w, y + h), (0, 255, 0), 2)
+need to store global current_minimap
 
-        cv2.rectangle(
-            screen_np,
-            (watch_x, watch_y),
-            (watch_x + 6, watch_y + 6),
-            (255, 255, 0),
-            2,
-        )
+1. get screen size
+2. determine corners for mouse_positions[]
+   1. top_right = (screen-width * 0.8, screen_height * 0.2)
 
-        
-    cv2.imwrite(
-        "screen_with_rectangles.png", cv2.cvtColor(screen_np, cv2.COLOR_RGB2BGR)
-    )
-```
-        
+randomize the order of the corners
 
- find_the_tower that will
+set direction to first corner
+
+for iterations
+
+    if time_to_exit: exit loop
+    set mouse to first corner with some randomness "human"
+    hold left mouse
+    press W
+    release left mouse
+
+    if check_for_tower is True
+        exit loop
+    
+    compare current_minimap to last_minimap using compare_images(img1, img2, threshold=30)
+
+    if compare_images returns True, set direction to next corner
+    and continue with iterations
+
+
+
