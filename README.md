@@ -56,3 +56,12 @@ python main.py
 Spiral Pattern: The function creates a square spiral pattern starting from the center of the screen. It moves in a direction (up, right, down, left), changes direction after completing part of the square, and gradually increases the length of each leg of the spiral to expand outward.
 
 Control Parameters:
+
+
+## Fast AI Integration
+
+### Notes
+
+- [youtube](https://www.youtube.com/watch?v=GS_0ZKzrvk0)
+- image for neural net should be 224 224
+  - [capture training code](https://github.com/ClarityCoders/Fall-Guys-AI/blob/master/training.py)
