@@ -65,3 +65,40 @@ Control Parameters:
 - [youtube](https://www.youtube.com/watch?v=GS_0ZKzrvk0)
 - image for neural net should be 224 224
   - [capture training code](https://github.com/ClarityCoders/Fall-Guys-AI/blob/master/training.py)
+
+
+### Goal
+
+1. Find Tower Entrance
+   1. Search **Black Marsh** with FastAI
+   2. Enter **Tower** with Image Detection 
+2. Level 1
+   1. Select **Level Exit** with Image Detection 
+3. Level 2 - 5
+   1. Search Level with FastAI
+   2. Select **Level Exit** with Image Detection 
+
+### Training SOP
+
+1. Capturing Images - whole minimap
+   1. Capture #1 at *Black Wood Waypoint*
+   2. Teleport in a direction
+      1. Record Mouse location
+      2. Capture
+2. Process Images
+   1. Convert to B/W line art
+   2. Record Mouse location with filename
+   3. Save to numpy array for neural network training
+
+
+
+### CLI
+
+1. Setup
+   1. Check for Game Window
+   2. Get Minimap location
+   3. Open Map, Screenshot, Paint
+   4. Enter **X Y** of center of **Blue X**
+2. Run
+
+### 

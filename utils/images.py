@@ -31,7 +31,6 @@ def capture_area(area, plz_save=True):
 
     # Save the captured area using the new save_image function
     if plz_save:
-
         capture_np_bgr = cv2.cvtColor(capture_np, cv2.COLOR_RGB2BGR)
         save_image(capture_np_bgr)
 
