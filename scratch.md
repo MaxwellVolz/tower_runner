@@ -1,45 +1,43 @@
-spiral teleport (iterations, run_duration)
 
-- use screen size at 80% for mouse positions
-- 
-start with mouse at bottom of screen
+
+We are going to be using Python, leveraging OpenCV for map exploration in a top-down view with a limited viewport to analyze and navigate the environment dynamically. 
+
+We have already captured images and post-processed them with:
+
+```py
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.Canny(image, threshold1=119, threshold2=250)
+    image = cv2.resize(image, (224, 224))
+    # saves image in folder
+```
+
+We have a collection of images from a sample"exploration". 
+
+Lets loop through the images we have post-processed in the /map_stitch_practice folder numbered:
+- 1.png, 
+- 2.png
+- ... 
+- 40.png 
   
-for iterations
-    press W
-    hold left click
-    for run_duration
-    move mouse left by angle_of_turn(example 60 degrees)
-    release mouse
+Update a map with new information as a bot explores, we can use techniques such as Kalman filtering. Kalman filtering is a mathematical method that combines prior knowledge with new measurements to estimate the state of a system. 
+
+Implement a stitch_image_to_map() function to stitch the current viewport image onto the existing map. This will require using OpenCV's stitch() function to align and merge the images.
+
+At each step (loop of image directory) lets output the current stitched map and save it. the images are 
+lets export to the same folder with the name 1_map.png, 2_map.png, etc.
 
 
 
-lets define a function called smart_teleport(iterations)
 
-need to store global current_minimap
-
-1. get screen size
-2. determine corners for mouse_positions[]
-   1. top_right = (screen-width * 0.8, screen_height * 0.2)
-
-randomize the order of the corners
-
-set direction to first corner
-
-for iterations
-
-    if time_to_exit: exit loop
-    set mouse to first corner with some randomness "human"
-    hold left mouse
-    press W
-    release left mouse
-
-    if check_for_tower is True
-        exit loop
-    
-    compare current_minimap to last_minimap using compare_images(img1, img2, threshold=30)
-
-    if compare_images returns True, set direction to next corner
-    and continue with iterations
+1. Fine-tune the values of the state vector and covariance matrix, the process and measurement noise matrices, the map boundary, the starting location, and the 
+2. 
+3. 
+4. desired feature to optimize performance and accuracy.
 
 
 
+For a school project I am developing an automated player named Jerry for a diablo ii private server. I am using Python with opencv and numpy. I need to define Jerrys role.
+
+When Jerry is activated
+1. Determine if location is Black Wood Waypoint
+   1. 
