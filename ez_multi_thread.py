@@ -2,9 +2,6 @@ import keyboard
 import threading
 import time
 
-from jerry_utils import capture_area
-from camera import Camera
-
 
 def background_task(stop_event):
     print("Task started")
@@ -33,10 +30,6 @@ def stop_background_task(stop_event):
         stop_event.set()
 
 
-def take_screenshot():
-    game_camera.take_screenshot(save_image=True)
-
-
 stop_event = threading.Event()
 
 task_thread = threading.Thread(target=background_task, args=(stop_event,))
@@ -45,10 +38,7 @@ task_thread.start()
 task_thread2 = threading.Thread(target=background_task2, args=(stop_event,))
 task_thread2.start()
 
-game_camera = Camera("Diablo II: Resurrected")
-
 keyboard.add_hotkey("esc", stop_background_task, args=[stop_event])
-keyboard.add_hotkey("1", take_screenshot)
 
 # Keep the main program running, otherwise python exits
 keyboard.wait("esc")
