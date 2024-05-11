@@ -31,7 +31,7 @@ class Camera:
         else:
             print(f"Window '{title}' not found.")
 
-    def take_screenshot(self, area=None, save_image=False):
+    def take_screenshot(self, area=None, save_image=False, action="ufo"):
         if not self.game_window or not win32gui.IsWindowVisible(self.game_window):
             print("Game window not found or not visible. Cannot take screenshot.")
             return None
@@ -53,7 +53,7 @@ class Camera:
             if not os.path.exists("screenshots"):
                 os.makedirs("screenshots")
             file_path = os.path.join(
-                "screenshots", f"screenshot_{pyautogui.time.time()}.png"
+                "screenshots", f"{pyautogui.time.time()}_{action}.png"
             )
             screenshot.save(file_path)
             print(f"Screenshot saved to {file_path}")
