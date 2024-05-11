@@ -2,7 +2,6 @@ import keyboard
 import threading
 import time
 
-from jerry_utils import capture_area
 from camera import Camera
 
 

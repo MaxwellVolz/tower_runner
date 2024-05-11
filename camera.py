@@ -6,14 +6,25 @@ import os
 
 
 class Camera:
+    _instance = None
+
     def __init__(self, window_title):
         self.window_title = window_title
         self.game_window = None
         self.find_game_window()
 
-    def find_game_window(self, title=None):
-        if title is None:
-            title = self.window_title
+    def __new__(cls, window_title):
+        if cls._instance is None:
+            print("Creating new Camera instance")
+            cls._instance = super(Camera, cls).__new__(cls)
+            cls._instance.window_title = window_title
+            cls._instance.game_window = None
+        else:
+            print("Using existing Camera instance")
+        return cls._instance
+
+    def find_game_window(self):
+        title = self.window_title
         self.game_window = win32gui.FindWindow(None, title)
         if self.game_window:
             print(f"Window '{title}' found, handle {self.game_window}")
