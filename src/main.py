@@ -13,14 +13,15 @@ minimap_area = [780, 330, 600, 300]
 
 RANDOM_WALK_STEPS = 10
 TELEPORT_HOTKEY = "w"
-NAVIGATION_MODE = "spiral"  # Options: 'random' or 'spiral'
+# Options: 'random' 'spiral' 'directional'
+NAVIGATION_MODE = "directional"
 
 # Define directions for spiral and random movement
 directions = {
-    "bottom_left": (500, 1200),
-    "bottom_right": (2900, 1200),
-    "top_left": (500, 160),
-    "top_right": (2900, 160),
+    "bottom_left": (500, 1300),
+    "bottom_right": (2900, 1300),
+    "top_left": (500, 10),
+    "top_right": (2900, 10),
 }
 direction_keys = list(directions.keys())
 
@@ -47,17 +48,45 @@ def spiral_search():
     return direction
 
 
+current_direction_index = 0
+
+
+def directional_search(blocked):
+    global current_direction_index
+    if blocked:
+        # If blocked, choose a nearby direction randomly
+        # Calculate adjacent indices assuming circular array behavior
+        left_index = (current_direction_index - 1) % 4
+        right_index = (current_direction_index + 1) % 4
+        # Randomly choose either left or right adjacent direction
+        current_direction_index = random.choice([left_index, right_index])
+        print(
+            f"Blocked, changing direction to {direction_keys[current_direction_index]}"
+        )
+    else:
+        print(f"Continuing in direction {direction_keys[current_direction_index]}")
+
+    return direction_keys[current_direction_index]
+
+
 def background_task(stop_event):
     global previous_img
+    blocked = False  # To track if movement was blocked
+
     while not stop_event.is_set():
         if NAVIGATION_MODE == "random":
             direction = random.choice(direction_keys)
         elif NAVIGATION_MODE == "spiral":
             direction = spiral_search()
+        elif NAVIGATION_MODE == "directional":
+            direction = directional_search(blocked)
+            blocked = False
         else:
             raise ValueError("Invalid navigation mode")
 
         navigate(direction)
+
+        time.sleep(0.3)
         current_img = game_camera.take_screenshot(
             area=light_radius, save_image=True, action="adhoc_lightradius"
         )
@@ -70,11 +99,11 @@ def background_task(stop_event):
             current_img_downsampled, previous_img
         ):
             print("Movement blocked, attempting another direction...")
+            blocked = True
+            time.sleep(1)
             continue  # Optionally, change direction or handle the blockage
 
-        previous_img = (
-            current_img_downsampled  # Store the downscaled image for the next cycle
-        )
+        previous_img = current_img_downsampled
 
         tower_coord = scan_for_tower(current_img)
         if tower_coord:
@@ -104,7 +133,7 @@ def take_screenshot(area, action):
 def navigate(direction):
     x, y = directions[direction]
     print(f"Navigating to {direction}...")
-    move_mouse(x, y, duration=0.2)
+    move_mouse(x, y, duration=0.1)
     keyboard.send(TELEPORT_HOTKEY)
 
 

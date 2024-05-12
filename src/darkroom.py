@@ -2,11 +2,16 @@ import cv2
 import numpy as np
 from PIL import Image
 
+import os
 
-def downsample_image(image, scale_percent=50):
+debug_dir = "screenshots_debug"
+
+
+def downsample_image(image, scale_percent=40):
     if isinstance(image, Image.Image):
         image = np.array(image)  # Convert PIL Image to NumPy array
 
+    image = cv2.GaussianBlur(image, (5, 5), 0)
     width = int(image.shape[1] * scale_percent / 100)
     height = int(image.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -14,20 +19,39 @@ def downsample_image(image, scale_percent=50):
     return resized
 
 
-def did_we_move(current_image, previous_image):
-    if previous_image is None:
-        return True  # No previous image to compare, assume we moved
+def did_we_move(current_image_downsampled, previous_image_downsampled):
+    if previous_image_downsampled is None:
+        return True
 
-    current_image_downsampled = downsample_image(current_image)
-    previous_image_downsampled = downsample_image(previous_image)
+    if not os.path.exists(debug_dir):
+        os.makedirs(debug_dir)
 
-    # Calculate the difference and the number of changed pixels
+    # Increased threshold for pixel changes
+    difference_threshold = 35  # Adjust as needed based on testing
+    movement_threshold = 2000  # Adjust based on the size and typical changes
+
+    # current_image_downsampled = downsample_image(current_image)
+    # previous_image_downsampled = downsample_image(previous_image)
+
     difference = cv2.absdiff(current_image_downsampled, previous_image_downsampled)
-    _, threshold = cv2.threshold(difference, 25, 255, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(
+        difference, difference_threshold, 255, cv2.THRESH_BINARY
+    )
     non_zero_count = np.count_nonzero(threshold)
 
-    # If the number of changed pixels is significant, we assume movement
-    return non_zero_count > 1000  # Threshold for 'movement' can be adjusted
+    # Save the downsampled images and the difference image for debugging
+    cv2.imwrite(
+        os.path.join(debug_dir, "current_downsampled.jpg"), current_image_downsampled
+    )
+    cv2.imwrite(
+        os.path.join(debug_dir, "previous_downsampled.jpg"), previous_image_downsampled
+    )
+    cv2.imwrite(os.path.join(debug_dir, "difference.jpg"), difference)
+    cv2.imwrite(os.path.join(debug_dir, "threshold.jpg"), threshold)
+
+    print(f"non_zero_count > movement_threshold: {non_zero_count > movement_threshold}")
+
+    return non_zero_count > movement_threshold
 
 
 def scan_for_tower(image):
