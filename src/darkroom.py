@@ -3,6 +3,33 @@ import numpy as np
 from PIL import Image
 
 
+def downsample_image(image, scale_percent=50):
+    if isinstance(image, Image.Image):
+        image = np.array(image)  # Convert PIL Image to NumPy array
+
+    width = int(image.shape[1] * scale_percent / 100)
+    height = int(image.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    resized = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+    return resized
+
+
+def did_we_move(current_image, previous_image):
+    if previous_image is None:
+        return True  # No previous image to compare, assume we moved
+
+    current_image_downsampled = downsample_image(current_image)
+    previous_image_downsampled = downsample_image(previous_image)
+
+    # Calculate the difference and the number of changed pixels
+    difference = cv2.absdiff(current_image_downsampled, previous_image_downsampled)
+    _, threshold = cv2.threshold(difference, 25, 255, cv2.THRESH_BINARY)
+    non_zero_count = np.count_nonzero(threshold)
+
+    # If the number of changed pixels is significant, we assume movement
+    return non_zero_count > 1000  # Threshold for 'movement' can be adjusted
+
+
 def scan_for_tower(image):
     """
     Scans a PIL image object for a specific color cluster (5x5 pixels) and returns the position of the cluster.
