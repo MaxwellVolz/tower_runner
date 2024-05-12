@@ -19,27 +19,33 @@ def downsample_image(image, scale_percent=40):
     return resized
 
 
-def did_we_move(current_image_downsampled, previous_image_downsampled):
+def did_we_move(
+    current_image_downsampled, previous_image_downsampled, debug_dir="debug_images"
+):
     if previous_image_downsampled is None:
         return True
 
     if not os.path.exists(debug_dir):
         os.makedirs(debug_dir)
 
-    # Increased threshold for pixel changes
-    difference_threshold = 35  # Adjust as needed based on testing
-    movement_threshold = 2000  # Adjust based on the size and typical changes
+    difference_threshold = 50
+    # Calculate the total number of pixels in one of the images
+    total_pixels = current_image_downsampled.size
 
-    # current_image_downsampled = downsample_image(current_image)
-    # previous_image_downsampled = downsample_image(previous_image)
-
+    # Calculate the difference and apply a binary threshold
     difference = cv2.absdiff(current_image_downsampled, previous_image_downsampled)
     _, threshold = cv2.threshold(
         difference, difference_threshold, 255, cv2.THRESH_BINARY
     )
     non_zero_count = np.count_nonzero(threshold)
 
-    # Save the downsampled images and the difference image for debugging
+    # Calculate the percentage of changed pixels
+    changed_percentage = (non_zero_count / total_pixels) * 100
+    similarity_threshold = (
+        1.0  # Adjust this to fine-tune when images are considered 'the same'
+    )
+
+    # Save the difference images for debugging without annotations
     cv2.imwrite(
         os.path.join(debug_dir, "current_downsampled.jpg"), current_image_downsampled
     )
@@ -49,9 +55,13 @@ def did_we_move(current_image_downsampled, previous_image_downsampled):
     cv2.imwrite(os.path.join(debug_dir, "difference.jpg"), difference)
     cv2.imwrite(os.path.join(debug_dir, "threshold.jpg"), threshold)
 
-    print(f"non_zero_count > movement_threshold: {non_zero_count > movement_threshold}")
+    print(f"Changed pixels percentage: {changed_percentage}%")
+    print(
+        f"Changed pixels percentage ({changed_percentage}%) > Similarity threshold ({similarity_threshold}%): {changed_percentage < similarity_threshold}"
+    )
 
-    return non_zero_count > movement_threshold
+    # Only return False if the changed pixels are less than the similarity threshold (images are very similar)
+    return changed_percentage > similarity_threshold
 
 
 def scan_for_tower(image):

@@ -8,6 +8,12 @@ This project image processing techniques and executes actions based on these det
 
 Currently, developing an autonomous navigation system using Python, threading, and potentially OpenCV for image processing. The goal is to explore an environment, initially with no predefined map, by randomly walking and using cameras to scan for specific goals like towers.
 
+## TODO
+
+1. Implement snake-movement
+   - pick direction
+     - move +/- 15 degrees until stuck.
+     - pick direction +/- 130-270
 
 ## Features
 
