@@ -3,6 +3,7 @@ import pyautogui
 import win32gui
 
 import os
+import datetime
 
 
 class Camera:
@@ -50,11 +51,11 @@ class Camera:
         screenshot = pyautogui.screenshot(region=region)
 
         if save_image:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
             if not os.path.exists("screenshots"):
                 os.makedirs("screenshots")
-            file_path = os.path.join(
-                "screenshots", f"{pyautogui.time.time()}_{action}.png"
-            )
+            file_path = os.path.join("screenshots", f"{timestamp}_{action}.png")
             screenshot.save(file_path)
             print(f"Screenshot saved to {file_path}")
 

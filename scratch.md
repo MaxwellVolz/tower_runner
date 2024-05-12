@@ -40,4 +40,76 @@ For a school project I am developing an automated player named Jerry for a diabl
 
 When Jerry is activated
 1. Determine if location is Black Wood Waypoint
-   1. 
+
+
+lets make a script called camera
+this will handle 
+1. finding the game window
+2. take_screenshot(area, save_image:boolean)
+
+
+the image captures are working great.
+
+
+lets setup some parsing of the image with import cv2
+
+scan_for_tower()
+   1. this will be a 5x5 pixel square with close to
+   2. rgb: 120,22,110
+   3. if true return x,y location of the cluster
+
+
+also lets implement an easy way to test our defs
+
+would like to be able to parse a file from the screenshot and pass that to scan_for_tower() for fine tuning
+
+
+the ultimate goal is to navigate an area until we find a specific feature
+
+steps
+1. take screenshot minimap_area
+
+2. 
+
+
+Get-ChildItem -Path "tower_runner" -Recurse -Depth 1 -File -Include *.py, -Directory
+Get-ChildItem -Path "tower_runner" -Recurse -Depth 2 -File -Include *.py, -Directory |
+    Where-Object { $_.FullName -notmatch '\\venv\\' -and $_.FullName -notmatch '\\__pycache__\\' }
+
+tower_runner
+    \src
+        darkroom.py
+        camera.py
+        main import.py
+    \tests
+        test_tower_scan.py
+    \screenshot_samples
+        20240510_175549_adhoc_minimap.png
+
+
+tower_runner
+    \src
+        darkroom.py
+        camera.py
+        main.py
+    \tests
+        test_tower_scan.py
+    \screenshot_samples\20240510_175549_adhoc_minimap.png
+
+
+using python and opencv i need a bot to navigate to the exit
+
+working
+
+- scan image for EXIT
+- attempt move in any direction
+  - move may not happen
+
+need
+
+- way to navigate existing space and search for exit
+- moves maybe be stopped by obstacles
+- use edge detection to find "edge of movable area"
+- can move didnt work by image comparison of last location
+  
+how to describe this better and how to solve this

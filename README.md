@@ -6,6 +6,9 @@ d2 bot for sorc tower runs
 
 This project image processing techniques and executes actions based on these detections. The project leverages multithreading to perform periodic checks without blocking the main execution flow.
 
+Currently, developing an autonomous navigation system using Python, threading, and potentially OpenCV for image processing. The goal is to explore an environment, initially with no predefined map, by randomly walking and using cameras to scan for specific goals like towers.
+
+
 ## Features
 
 - **Screen Capture**: Captures specified screen areas for processing.
@@ -101,4 +104,72 @@ Control Parameters:
    4. Enter **X Y** of center of **Blue X**
 2. Run
 
-### 
+### Pathfinding
+
+Radial with rollback
+
+"radial pathfinding strategy with rollback, as you've described, can be an effective way to explore an environment from a central point outward, similar to a depth-first search that branches out in all directions. This approach is useful when the environment is relatively open or when the goal is to systematically explore every accessible area. "
+
+Pros:
+
+Comprehensive: Ensures thorough exploration of the area.
+Adaptable: Can dynamically adjust to obstacles and explore alternative paths.
+Cons:
+
+Inefficient in large or complex environments due to repeated backtracking.
+May not be the fastest method to reach a specific distant goal if known in advance.
+
+example
+1. move north until blocked
+   2. move northeast until blocked
+      1. move north until blocked
+      2. move northeast until blocked
+   3. move east until blocked
+      1. move northeast until blocked
+      2. move east until blocked
+   3. move southeast until blocked
+      1. move east until blocked
+      2. move southeast until blocked
+   4. etc.
+
+continue until circle is completed
+
+```py
+def explore(x, y, visited, directions):
+    """Explore using a radial and rollback strategy."""
+    if (x, y) in visited:
+        return
+    visited.add((x, y))
+
+    for dx, dy in directions:
+        next_x, next_y = x + dx, y + dy
+        if is_passable(next_x, next_y):
+            explore(next_x, next_y, visited, directions)
+        else:
+            # If blocked, try next direction from current position
+            continue
+
+def is_passable(x, y):
+    """Check if the new position is passable or blocked."""
+    # Implement logic to check if the position is passable
+    pass
+
+# Directions represent N, NE, E, SE, S, SW, W, NW
+directions = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+visited = set()
+start_x, start_y = 0, 0  # Starting coordinates
+
+explore(start_x, start_y, visited, directions)
+```
+Tuning
+Direction Priority: Change the order of directions based on the environment or known goals to optimize the path.
+Step Size: Adjust the step size (how far you move in each direction) to explore more quickly or more carefully.
+Recursion Limits: Set limits on recursion depth to prevent excessive backtracking in very dense areas.
+Memory Management: Use iterative approaches with explicit stacks if recursion depth becomes an issue due to large exploration areas.
+
+Enhancements
+Graph-based Pathfinding: Consider converting the environment into a graph and using algorithms like A* or Dijkstra’s for more efficient goal-directed movement.
+Dynamic Path Adjustment: Implement real-time adjustments based on newly discovered obstacles or cleared paths.
+Heuristics: Introduce heuristics to prioritize directions that are more likely to lead to open areas or specific goals.
+
+
