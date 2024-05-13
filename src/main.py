@@ -19,9 +19,13 @@ NAVIGATION_MODE = "directional"
 # Define directions for spiral and random movement
 directions = {
     "bottom_left": (500, 1300),
+    # "bottom": (500, 1300),
     "bottom_right": (2900, 1300),
-    "top_left": (500, 10),
+    "right": (2900, 666),
     "top_right": (2900, 10),
+    # "top": (500, 1300),
+    "top_left": (500, 10),
+    "left": (500, 666),
 }
 direction_keys = list(directions.keys())
 
@@ -53,11 +57,13 @@ current_direction_index = 0
 
 def directional_search(blocked):
     global current_direction_index
+    num_directions = len(direction_keys)
+
     if blocked:
         # If blocked, choose a nearby direction randomly
         # Calculate adjacent indices assuming circular array behavior
-        left_index = (current_direction_index - 1) % 4
-        right_index = (current_direction_index + 1) % 4
+        left_index = (current_direction_index - 1) % num_directions
+        right_index = (current_direction_index + 1) % num_directions
         # Randomly choose either left or right adjacent direction
         current_direction_index = random.choice([left_index, right_index])
         print(
@@ -100,7 +106,7 @@ def background_task(stop_event):
         ):
             print("Movement blocked, attempting another direction...")
             blocked = True
-            time.sleep(1)
+            time.sleep(0.2)
             continue  # Optionally, change direction or handle the blockage
 
         previous_img = current_img_downsampled
@@ -110,7 +116,7 @@ def background_task(stop_event):
             print("Tower found at:", tower_coord)
             stop_event.set()
             break
-        time.sleep(1)
+        time.sleep(0.4)
     print("Navigation stopped")
 
 
