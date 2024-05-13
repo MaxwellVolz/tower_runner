@@ -4,12 +4,20 @@ import random
 import time
 
 from camera import Camera
-from darkroom import scan_for_tower, did_we_move, downsample_image
-from navigator import move_mouse
+from darkroom import (
+    scan_for_tower,
+    load_image,
+    find_image_on_screen,
+    did_we_move,
+    downsample_image,
+)
+from navigator import move_mouse, click_mouse
 
 # default areas
 light_radius = [950, 390, 260, 150]
 minimap_area = [780, 330, 600, 300]
+tower_1_area = [1100, 240, 1000, 800]
+fullscreen = [0, 0, 3440, 1440]
 
 RANDOM_WALK_STEPS = 10
 TELEPORT_HOTKEY = "w"
@@ -144,9 +152,8 @@ def take_screenshot(area, action):
 
 
 def move_to_tower(tower_coords):
-    x, y = int(tower_coords[0]), int(tower_coords[1])
-    print(f"Moving towards=: {x}, {y}")
-    move_mouse(x, y, duration=0.1)
+    print(f"Moving towards: {tower_coords}")
+    move_mouse(*tower_coords, duration=0.1)
     keyboard.send(TELEPORT_HOTKEY)
 
 
@@ -155,6 +162,32 @@ def navigate(direction):
     print(f"Navigating to {direction}...")
     move_mouse(x, y, duration=0.1)
     keyboard.send(TELEPORT_HOTKEY)
+
+
+def enter_level_1():
+    search_area = (800, 200, 1200, 600)
+    step = 200
+    x_start, y_start, width, height = search_area
+
+    template_image = load_image("level_1.png")
+
+    for x in range(x_start, x_start + width, step):
+        for y in range(y_start, y_start + height, step):
+            move_mouse(x, y, duration=0.1)
+            print(f"Mouse moved to ({x}, {y})")
+            time.sleep(0.1)  # Wait for the screen to stabilize if necessary
+            img = game_camera.take_screenshot(
+                area=tower_1_area, save_image=True, action="tower1", output_bgr=True
+            )
+
+            if find_image_on_screen(img, template_image):
+                print(f"Image found near ({x}, {y})")
+                # move_mouse(x, y)  # Move the mouse to the found location
+                click_mouse()  # Perform the click
+                return (x, y)  # Exit the function after action is taken
+
+    print("Level 1 entrance not found. Exiting search.")
+    return None
 
 
 stop_event = threading.Event()
@@ -169,9 +202,14 @@ keyboard.add_hotkey("esc", lambda: stop_event.set())
 keyboard.add_hotkey("1", take_screenshot, args=[light_radius, "adhoc_lightradius"])
 keyboard.add_hotkey("2", take_screenshot, args=[minimap_area, "adhoc_minimap"])
 
+keyboard.add_hotkey("3", take_screenshot, args=[fullscreen, "adhoc_fullscreen"])
+
 # Navigation Controls
 navigation_thread = threading.Thread(target=background_task, args=(stop_event,))
-keyboard.add_hotkey("3", lambda: navigation_thread.start())
+
+keyboard.add_hotkey("4", lambda: navigation_thread.start())
+keyboard.add_hotkey("5", enter_level_1)
+
 
 # Keep the main program running, otherwise python exits
 keyboard.wait("esc")

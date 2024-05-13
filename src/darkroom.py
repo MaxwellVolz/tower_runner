@@ -80,10 +80,11 @@ def calculate_minimap_offset(destination_on_minimap):
 
     # Calculate the new screen position by applying the vector to the screen center
     new_screen_position = (
-        screen_width_offset + vector_to_destination[0],
-        vector_to_destination[1],
+        int(screen_width_offset + vector_to_destination[0]),
+        int(vector_to_destination[1]),
     )
 
+    print(f"vector_to_destination: {vector_to_destination}")
     print(f"Move mouse to screen coordinates: {new_screen_position}")
 
     return new_screen_position
@@ -138,4 +139,53 @@ def scan_for_tower(image):
 
                 return calculate_minimap_offset((y, x))
 
+    return None
+
+
+def load_image(img_name):
+    base_path = os.path.dirname(
+        os.path.abspath(__file__)
+    )  # Gets the directory where the script is located
+    img_path = os.path.join(base_path, "templates", img_name)
+
+    # Load the image using OpenCV
+    image = cv2.imread(img_path, cv2.IMREAD_COLOR)
+
+    # Check if the image was loaded successfully
+    if image is None:
+        raise FileNotFoundError(
+            f"Could not load the image at {img_path}. Please check the path and file."
+        )
+
+    return image
+
+
+def find_image_on_screen(img, template, threshold=0.8):
+
+    screen_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+    # Ensure the template is smaller than the screen capture
+    if (
+        template.shape[0] > screen_gray.shape[0]
+        or template.shape[1] > screen_gray.shape[1]
+    ):
+        raise ValueError(
+            "Template dimensions are larger than the screen capture dimensions."
+        )
+
+    # Check if template is smaller than the screen image
+    if (
+        template_gray.shape[0] > screen_gray.shape[0]
+        or template_gray.shape[1] > screen_gray.shape[1]
+    ):
+        raise ValueError(
+            "Template dimensions are larger than the screen image dimensions."
+        )
+
+    # Perform template matching
+    res = cv2.matchTemplate(screen_gray, template_gray, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+    if max_val >= threshold:
+        return max_loc  # Return the location of the top-left corner of the match
     return None

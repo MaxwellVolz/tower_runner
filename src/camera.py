@@ -4,6 +4,8 @@ import win32gui
 
 import os
 import datetime
+import numpy as np
+import cv2
 
 
 class Camera:
@@ -32,7 +34,9 @@ class Camera:
         else:
             print(f"Window '{title}' not found.")
 
-    def take_screenshot(self, area=None, save_image=False, action="ufo"):
+    def take_screenshot(
+        self, area=None, save_image=False, action="ufo", output_bgr=False
+    ):
         if not self.game_window or not win32gui.IsWindowVisible(self.game_window):
             print("Game window not found or not visible. Cannot take screenshot.")
             return None
@@ -58,5 +62,10 @@ class Camera:
             file_path = os.path.join("screenshots", f"{timestamp}_{action}.png")
             screenshot.save(file_path)
             print(f"Screenshot saved to {file_path}")
+
+        if output_bgr:  # Convert RGB to BGR
+            screen_np = np.array(screenshot)
+            screen_bgr = cv2.cvtColor(screen_np, cv2.COLOR_RGB2BGR)
+            return screen_bgr
 
         return screenshot
