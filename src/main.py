@@ -8,7 +8,7 @@ from darkroom import scan_for_tower, did_we_move, downsample_image
 from navigator import move_mouse
 
 # default areas
-light_radius = [960, 400, 240, 130]
+light_radius = [950, 390, 260, 150]
 minimap_area = [780, 330, 600, 300]
 
 RANDOM_WALK_STEPS = 10
@@ -113,8 +113,16 @@ def background_task(stop_event):
 
         tower_coord = scan_for_tower(current_img)
         if tower_coord:
-            print("Tower found at:", tower_coord)
+            print("Tower found, move:", tower_coord)
             stop_event.set()
+            move_to_tower(tower_coord)
+
+            time.sleep(0.5)
+            tower_coord = scan_for_tower(current_img)
+            move_to_tower(tower_coord)
+
+            #  TODO: scan_for_tower is now return the coords for our next mouse move...lets handle triggering the next "phase" of our bot
+
             break
         time.sleep(0.4)
     print("Navigation stopped")
@@ -127,13 +135,19 @@ def background_task2(stop_event):
         print("a2o")
         time.sleep(1)
 
-    # TODO: Cleanup
     print("Task2 stopped")
 
 
 def take_screenshot(area, action):
     img = game_camera.take_screenshot(area=area, save_image=True, action=action)
     print(scan_for_tower(img))
+
+
+def move_to_tower(tower_coords):
+    x, y = int(tower_coords[0]), int(tower_coords[1])
+    print(f"Moving towards=: {x}, {y}")
+    move_mouse(x, y, duration=0.1)
+    keyboard.send(TELEPORT_HOTKEY)
 
 
 def navigate(direction):

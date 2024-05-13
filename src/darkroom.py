@@ -64,6 +64,31 @@ def did_we_move(
     return changed_percentage > similarity_threshold
 
 
+def calculate_minimap_offset(destination_on_minimap):
+    # screen = (1720, 720)
+    minimap_area = (260, 150)  # width, height
+    screen_width_offset = 1720 - 900
+    screen_height_offset = 1200
+
+    # Calculate the center of the minimap
+
+    # Calculate the vector from the center of the minimap to the destination
+    vector_to_destination = (
+        (destination_on_minimap[0] / minimap_area[0]) * 1800,
+        (destination_on_minimap[1] / minimap_area[1]) * screen_height_offset,
+    )
+
+    # Calculate the new screen position by applying the vector to the screen center
+    new_screen_position = (
+        screen_width_offset + vector_to_destination[0],
+        vector_to_destination[1],
+    )
+
+    print(f"Move mouse to screen coordinates: {new_screen_position}")
+
+    return new_screen_position
+
+
 def scan_for_tower(image):
     """
     Scans a PIL image object for a specific color cluster (5x5 pixels) and returns the position of the cluster.
@@ -110,6 +135,7 @@ def scan_for_tower(image):
         ):  # Ensure within bounds
             patch = color_mask[x : x + 5, y : y + 5]
             if cv2.countNonZero(patch) == 25:  # Check if all pixels in the patch match
-                return (y, x)  # Return as (x, y)
+
+                return calculate_minimap_offset((y, x))
 
     return None
